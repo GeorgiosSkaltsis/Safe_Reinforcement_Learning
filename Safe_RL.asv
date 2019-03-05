@@ -132,11 +132,7 @@ A = Theta(1:3,1:3)';
 
 for i=2:10
    A(:,:,i) = A(:,:,1) + 0.1 * randn(3,3);
-   eigA = eig(A(:,:,i));
-   B(:,:,i) = B(:,:,1) + 0.1 * randn(3,3);
-   eigB = eig(B(:,:,i));
-   U_C = [B(:,:,i) A(:,:,i)*B(:,:,i) A(:,:,i)^2*B(:,:,i)];
-   rankC = rank(U_C)
+   B(:,:,i) = B(:,:,1) + randn(3,3);
 end
 
 
