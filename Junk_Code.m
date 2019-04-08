@@ -1,23 +1,24 @@
-%% INITIALIZATION
-clc; clear all; close all;
 
-% Intro
-disp('Safe Reinforcement Learning');
-disp('--------------------------------------');
-disp('  Simulated Experiments  ');
-fprintf('\n');
-
-% %  Load Paths
-% disp('Load customized paths of PRtools and DIPimage etc');
-% run('load_paths');
-%% Initialize Matrices
-disp('--------------------------------------');
-disp('  Initializing matrices  ');
-fprintf('\n');
-
-a = [1.01 0.01 0]
-A_true = toeplitz(a,a')
-B_true = eye(3);
+%% LMI solving: Minimize Linear Objectives under LMI Constraints.
+%  a = [-1 -2 1;3 2 1;1 -2 -1]
+%  b = [1;0;1]
+%  q = [1 -1 0; -1 -3 -12; 0 -12 -36]
+%  
+%  setlmis([]) 
+% X = lmivar(1,[3 1]) % variable X, full symmetric
+% 
+% lmiterm([1 1 1 X],1,a,'s') 
+% lmiterm([1 1 1 0],q) 
+% lmiterm([1 2 2 0],-1) 
+% lmiterm([1 2 1 X],b',1)
+% 
+% LMIs = getlmis
+% 
+% c = mat2dec(LMIs,eye(3))
+% options = [1e-5,0,0,0,0] 
+% 
+% [copt,xopt] = mincx(LMIs,c,options)
+% Xopt = dec2mat(LMIs,xopt,X)
 
 %% Performing the N roll-outs: A MOESP approach
 % % % disp('--------------------------------------');
@@ -94,65 +95,3 @@ B_true = eye(3);
 % % %     subplot(337);plot(w/(2*pi),[m1(:,3),M1(:,3)]);title('Input 1 -> Output 3');
 % % %     subplot(338);plot(w/(2*pi),[m2(:,3),M2(:,3)]);title('Input 1 -> Output 3');
 % % %     subplot(339);plot(w/(2*pi),[m3(:,3),M3(:,3)]);title('Input 2 -> Output 3');
-
-%% Performing the N roll-outs: Recht's Least Squares approach.
-% I did not implement it yet! It is not of high priority.
-
-disp('--------------------------------------');
-disp('  Creating the roll - outs.  ');
-fprintf('\n');
-N = 60;
-steps = 6;
-x = zeros(3,N,steps);
-u = zeros(3,N,steps);
-Z_N = [];
-X_N = [];
-
-for i=1:N
-    for j=1:steps
-        % I should save the inputs as well. I will need them!
-    u(:,i,j) = randn(3,1);
-    noise = randn(3,1);
-    Z_N = [Z_N; x(:,i,j)' u(:,i,j)'];    
-    
-    x(:,i,j+1) = A_true * x(:,i,j)+ B_true * u(:,i,j) + noise;
-    X_N = [X_N; x(:,i,j+1)'];
-    end
-end
-Theta = inv(Z_N' * Z_N) * Z_N' * X_N;
-disp('--------------------------------------');
-disp('  And the mean matrices are:  ');
-fprintf('\n');
-
-B = Theta(4:6,1:3)';
-A = Theta(1:3,1:3)';
-%% Creating pairs of matrices A and B: In favor of Bayesian inference.
-% The purpose here is to find what kind of noise should we add on the two
-% matrices!
-
-for i=2:10
-   A(:,:,i) = A(:,:,1) + 0.1 * randn(3,3);
-   B(:,:,i) = B(:,:,1) + randn(3,3);
-end
-
-
-%% LMI solving: Minimize Linear Objectives under LMI Constraints.
-%  a = [-1 -2 1;3 2 1;1 -2 -1]
-%  b = [1;0;1]
-%  q = [1 -1 0; -1 -3 -12; 0 -12 -36]
-%  
-%  setlmis([]) 
-% X = lmivar(1,[3 1]) % variable X, full symmetric
-% 
-% lmiterm([1 1 1 X],1,a,'s') 
-% lmiterm([1 1 1 0],q) 
-% lmiterm([1 2 2 0],-1) 
-% lmiterm([1 2 1 X],b',1)
-% 
-% LMIs = getlmis
-% 
-% c = mat2dec(LMIs,eye(3))
-% options = [1e-5,0,0,0,0] 
-% 
-% [copt,xopt] = mincx(LMIs,c,options)
-% Xopt = dec2mat(LMIs,xopt,X)
