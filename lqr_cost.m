@@ -2,12 +2,12 @@
 
 function [cost, cost_opt, ratio] = lqr_cost(K)
 steps = 50
-% System's matrices
+System's matrices
 a = [1.01 0.01 0]
 A_true = toeplitz(a,a')
 B_true = eye(3);
 
-% Calculate the proper lqr matrix
+%Calculate the proper lqr matrix
 Q = 10^(-3) * eye(3);
 R = eye(3); N = zeros(3,3);
 [K_lqr,S,e] = dlqr(A_true,B_true,Q,R,N)
